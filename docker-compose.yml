@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   otel-collector:
@@ -7,6 +7,15 @@ services:
     volumes:
       - ./config.yaml:/etc/otelcol-contrib/config.yaml
     ports:
-      - "4317:4317"     # OTLP gRPC
-      - "4318:4318"     # OTLP HTTP
-      - "55679:55679"   # Z‑Pages UI
+      - "4317:4317" # OTLP gRPC
+      - "4319:4319" # OTLP HTTP
+      - "55679:55679" # Z‑Pages UI
+  skywalking-transformer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: skywalking-transformer
+    ports:
+      - "8090:8090"
+    depends_on:
+      - otel-collector
