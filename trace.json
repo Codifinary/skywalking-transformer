@@ -1,0 +1,171 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "my-dotnet-service1"
+            }
+          },
+          {
+            "key": "service.instance.id",
+            "value": {
+              "stringValue": "instance-uuid-01"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "spans": [
+            {
+              "traceId": "40d91850f38cd5592eacd349dd2db1ef",
+              "spanId": "3367339f449f6384",
+              "parentSpanId": "",
+              "name": "/api/users",
+              "kind": "SPAN_KIND_SERVER",
+              "startTimeUnixNano": "1719754325123456789",
+              "endTimeUnixNano": "1719754325123456790",
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "GET"
+                  }
+                },
+                {
+                  "key": "http.status_code",
+                  "value": {
+                    "stringValue": "200"
+                  }
+                },
+                {
+                  "key": "component",
+                  "value": {
+                    "stringValue": "HTTP"
+                  }
+                },
+                {
+                  "key": "layer",
+                  "value": {
+                    "stringValue": "HTTP"
+                  }
+                },
+                {
+                  "key": "span.type",
+                  "value": {
+                    "stringValue": "Entry"
+                  }
+                },
+                {
+                  "key": "span.isError",
+                  "value": {}
+                }
+              ]
+            },
+            {
+              "traceId": "40d91850f38cd5592eacd349dd2db1ef",
+              "spanId": "d7811b8b280044cc",
+              "parentSpanId": "3367339f449f6384",
+              "name": "Call MySQL",
+              "kind": "SPAN_KIND_CLIENT",
+              "startTimeUnixNano": "1719754325123456789",
+              "endTimeUnixNano": "1719754325123456790",
+              "attributes": [
+                {
+                  "key": "db.type",
+                  "value": {
+                    "stringValue": "mysql"
+                  }
+                },
+                {
+                  "key": "db.statement",
+                  "value": {
+                    "stringValue": "SELECT * FROM users"
+                  }
+                },
+                {
+                  "key": "peer",
+                  "value": {
+                    "stringValue": "mysql-server:3306"
+                  }
+                },
+                {
+                  "key": "component",
+                  "value": {
+                    "stringValue": "MySQL"
+                  }
+                },
+                {
+                  "key": "layer",
+                  "value": {
+                    "stringValue": "Database"
+                  }
+                },
+                {
+                  "key": "span.type",
+                  "value": {
+                    "stringValue": "Exit"
+                  }
+                },
+                {
+                  "key": "span.isError",
+                  "value": {}
+                }
+              ]
+            },
+            {
+              "traceId": "40d91850f38cd5592eacd349dd2db1ef",
+              "spanId": "3f92a5a8d8524092",
+              "parentSpanId": "d7811b8b280044cc",
+              "name": "Redis Cache",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1719754325123456789",
+              "endTimeUnixNano": "1719754325123456790",
+              "attributes": [
+                {
+                  "key": "cache.hit",
+                  "value": {
+                    "stringValue": "false"
+                  }
+                },
+                {
+                  "key": "peer",
+                  "value": {
+                    "stringValue": "redis-server:6379"
+                  }
+                },
+                {
+                  "key": "component",
+                  "value": {
+                    "stringValue": "Redis"
+                  }
+                },
+                {
+                  "key": "layer",
+                  "value": {
+                    "stringValue": "Cache"
+                  }
+                },
+                {
+                  "key": "span.type",
+                  "value": {
+                    "stringValue": "Local"
+                  }
+                },
+                {
+                  "key": "span.isError",
+                  "value": {
+                    "boolValue": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

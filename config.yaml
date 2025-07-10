@@ -1,0 +1,23 @@
+extensions:
+  zpages:
+    endpoint: 0.0.0.0:55679
+    include_metadata: true     # ← snake_case
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+exporters:
+  debug:
+    verbosity: detailed
+
+service:
+  extensions: [zpages]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [debug]

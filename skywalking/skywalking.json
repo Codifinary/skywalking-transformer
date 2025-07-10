@@ -1,0 +1,54 @@
+{
+  "traceId": "abc123",
+  "service": "my-dotnet-service5",
+  "serviceInstance": "instance-uuid-01",
+  "spans": [
+    {
+      "spanId": 0,
+      "parentSpanId": -1,
+      "operationName": "/api/users",
+      "spanType": "Entry",
+      "isError": 0,
+      "startTime": 1750780200000,
+      "endTime": 1750780203000,
+      "peer": "",
+      "component": "HTTP",
+      "layer": "HTTP",
+      "tags": [
+        { "key": "http.method", "value": "GET" },
+        { "key": "http.status_code", "value": "200" }
+      ]
+    },
+    {
+      "spanId": 1,
+      "parentSpanId": 0,
+      "operationName": "Call MySQL",
+      "spanType": "Exit",
+      "isError": 0,
+      "startTime": 1750780201000,
+      "endTime": 1750780202000,
+      "peer": "mysql-server:3306",
+      "component": "MySQL",
+      "layer": "Database",
+      "tags": [
+        { "key": "db.type", "value": "mysql" },
+        { "key": "db.statement", "value": "SELECT * FROM users" }
+      ]
+    },
+    {
+      "spanId": 2,
+      "parentSpanId": 1,
+      "operationName": "Redis Cache",
+      "spanType": "Local",
+      "isError": 1,
+      "startTime": 1750780202000,
+      "endTime": 1750780203000,
+      "peer": "redis-server:6379",
+      "component": "Redis",
+      "layer": "Cache",
+      "tags": [
+        { "key": "cache.hit", "value": "false" }
+      ]
+    }
+  ]
+}

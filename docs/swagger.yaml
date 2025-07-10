@@ -1,0 +1,208 @@
+basePath: /
+definitions:
+  main.InstanceProperties:
+    properties:
+      properties:
+        additionalProperties: {}
+        type: object
+      serviceId:
+        type: string
+      serviceInstanceId:
+        type: string
+    type: object
+  otel.Attribute:
+    properties:
+      key:
+        type: string
+      value:
+        $ref: '#/definitions/otel.AttributeVal'
+    type: object
+  otel.AttributeVal:
+    properties:
+      boolValue:
+        type: boolean
+      intValue:
+        type: integer
+      stringValue:
+        type: string
+    type: object
+  otel.OTelPayload:
+    properties:
+      resourceSpans:
+        items:
+          $ref: '#/definitions/otel.ResourceSpan'
+        type: array
+    type: object
+  otel.OTelSpan:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/otel.Attribute'
+        type: array
+      endTimeUnixNano:
+        type: string
+      kind:
+        type: string
+      name:
+        type: string
+      parentSpanId:
+        type: string
+      spanId:
+        type: string
+      startTimeUnixNano:
+        type: string
+      traceId:
+        type: string
+    type: object
+  otel.Resource:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/otel.Attribute'
+        type: array
+    type: object
+  otel.ResourceSpan:
+    properties:
+      resource:
+        $ref: '#/definitions/otel.Resource'
+      scopeSpans:
+        items:
+          $ref: '#/definitions/otel.ScopeSpans'
+        type: array
+    type: object
+  otel.ScopeSpans:
+    properties:
+      spans:
+        items:
+          $ref: '#/definitions/otel.OTelSpan'
+        type: array
+    type: object
+  skywalking.Span:
+    properties:
+      component:
+        type: string
+      endTime:
+        description: milliseconds
+        type: integer
+      isError:
+        type: integer
+      layer:
+        type: string
+      operationName:
+        type: string
+      parentSpanId:
+        type: integer
+      peer:
+        type: string
+      spanId:
+        type: integer
+      spanType:
+        description: Entry, Exit, Local
+        type: string
+      startTime:
+        description: milliseconds
+        type: integer
+      tags:
+        items:
+          $ref: '#/definitions/skywalking.Tag'
+        type: array
+    type: object
+  skywalking.Tag:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
+  skywalking.TraceSegment:
+    properties:
+      service:
+        type: string
+      serviceInstance:
+        type: string
+      spans:
+        items:
+          $ref: '#/definitions/skywalking.Span'
+        type: array
+      traceId:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is an example API to receive SkyWalking agent payloads.
+  title: SkyWalking Collector API Example
+  version: "1.0"
+paths:
+  /collect-otel:
+    post:
+      consumes:
+      - application/json
+      description: Receives OTLP trace payload and returns it
+      parameters:
+      - description: OTel Trace Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/otel.OTelPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/otel.OTelPayload'
+      summary: Collect OpenTelemetry payload
+  /send-to-otel:
+    post:
+      consumes:
+      - application/json
+      description: Receives SkyWalking agent payload, converts to OTel, forwards to
+        OTEL backend
+      parameters:
+      - description: SkyWalking Trace Segment
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/skywalking.TraceSegment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Collect SkyWalking payload and forward to OTEL backend
+  /v3/management/reportProperties:
+    post:
+      consumes:
+      - application/json
+      description: Receives agent service/instance properties
+      parameters:
+      - description: Instance Properties
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.InstanceProperties'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Handle SkyWalking agent property registration
+swagger: "2.0"

@@ -1,0 +1,16 @@
+{
+  "serviceId": "{'name':'test','teamID':'','type':'A'}",
+  "serviceInstanceId": "192.168.1.100@DESKTOP-OE97FN0",
+  "properties": {
+    "osName": "Windows",
+    "osVersion": "Microsoft Windows NT 10.0.22631.0",
+    "hostName": "DESKTOP-OE97FN0",
+    "processNo": 21308,
+    "ipAddress": [
+      "fe80::6f89:8228:ee9d:ae18",
+      "192.168.1.100"
+    ],
+    "language": "dotnet",
+    "agentVersion": "1.0.0.0"
+  }
+}
