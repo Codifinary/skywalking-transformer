@@ -1,12 +1,19 @@
 version: '3.8'
 
 services:
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector
-    volumes:
-      - ./config.yaml:/etc/otelcol-contrib/config.yaml
+  skywalking-transformer:
+    image: ghcr.io/codifinary/skywalking-transformer:latest
+    container_name: skywalking-transformer
     ports:
-      - "4317:4317"     # OTLP gRPC
-      - "4318:4318"     # OTLP HTTP
-      - "55679:55679"   # Z‑Pages UI
+      - "8081:8081"
+    environment:
+      - CODEXRAY_COLLECTOR_URL=http://${BASE_URL}/v1/traces
+      - CODEXRAY_RECEIVER_PORT=8081
+      - CODEXRAY_WORKERS=8
+      - CODEXRAY_QUEUE_SIZE=100000
+      - CODEXRAY_BATCH_SIZE=500
+      - CODEXRAY_BATCH_FLUSH_MS=200
+      - CODEXRAY_HTTP_TIMEOUT_MS=10000
+      - CODEXRAY_SHUTDOWN_TIMEOUT_MS=15000
+      - CODEXRAY_QUEUE_DROP_ON_FULL=false
+    restart: unless-stopped
