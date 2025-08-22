@@ -35,8 +35,6 @@ WORKDIR /app
 # Copy the binary from builder stage
 COPY --from=builder /app/codexray-transformer .
 
-# Copy config file if needed
-COPY --from=builder /app/config.yaml ./config.yaml
 
 # Change ownership to non-root user
 RUN chown -R appuser:appgroup /app
