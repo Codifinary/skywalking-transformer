@@ -1,0 +1,122 @@
+basePath: /
+definitions:
+  skywalking.Log:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/skywalking.Tag'
+        type: array
+      time:
+        type: integer
+    type: object
+  skywalking.Reference:
+    properties:
+      headers:
+        type: string
+      traceId:
+        type: string
+    type: object
+  skywalking.Span:
+    properties:
+      componentId:
+        type: integer
+      endTime:
+        type: integer
+      isError:
+        type: boolean
+      logs:
+        items:
+          $ref: '#/definitions/skywalking.Log'
+        type: array
+      methodName:
+        description: nullable
+        type: string
+      operationName:
+        type: string
+      parentSpanId:
+        type: integer
+      peer:
+        type: string
+      references:
+        items:
+          $ref: '#/definitions/skywalking.Reference'
+        type: array
+      skipAnlysis:
+        type: boolean
+      spanId:
+        type: integer
+      spanLayer:
+        type: string
+      spanType:
+        type: string
+      startTime:
+        type: integer
+      tags:
+        items:
+          $ref: '#/definitions/skywalking.Tag'
+        type: array
+    type: object
+  skywalking.Tag:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
+  skywalking.TraceSegment:
+    properties:
+      isSizeLimited:
+        type: boolean
+      service:
+        type: string
+      serviceInstance:
+        type: string
+      spans:
+        items:
+          $ref: '#/definitions/skywalking.Span'
+        type: array
+      traceId:
+        type: string
+      traceSegmentId:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: This is an example API to receive SkyWalking agent payloads.
+  title: SkyWalking Collector API Example
+  version: "1.0"
+paths:
+  /v3/segments:
+    post:
+      consumes:
+      - application/json
+      description: Receives SkyWalking segments, converts to OTLP, and enqueues for
+        async forwarding
+      parameters:
+      - description: SkyWalking Trace Segments
+        in: body
+        name: payload
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/skywalking.TraceSegment'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Collect SkyWalking segments
+      tags:
+      - SkyWalking
+swagger: "2.0"
