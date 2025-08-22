@@ -49,11 +49,11 @@ type Event struct {
 
 func MapSpanTypeToKind(spanType string) string {
 	switch spanType {
-	case "Entry":
+	case "0":
 		return "SPAN_KIND_SERVER"
-	case "Exit":
+	case "1":
 		return "SPAN_KIND_CLIENT"
-	case "Local":
+	case "2":
 		return "SPAN_KIND_INTERNAL"
 	default:
 		return "SPAN_KIND_INTERNAL"
