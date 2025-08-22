@@ -13,13 +13,21 @@ import (
 
 func randomTraceID() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		log.Printf("Failed to generate random trace ID: %v", err)
+		// Fallback to a default value or handle error appropriately
+		return "00000000000000000000000000000000"
+	}
 	return hex.EncodeToString(b)
 }
 
 func randomSpanID() string {
 	b := make([]byte, 8)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		log.Printf("Failed to generate random span ID: %v", err)
+		// Fallback to a default value
+		return "0000000000000000"
+	}
 	return hex.EncodeToString(b)
 }
 

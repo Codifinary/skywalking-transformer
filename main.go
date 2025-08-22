@@ -205,7 +205,8 @@ func main() {
 	}()
 
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		defer cancel()
+		// Call cancel directly instead of defer to avoid linter warning
+		cancel()
 		log.Fatalf("Server failed: %v", err)
 	}
 	<-idleConnsClosed
