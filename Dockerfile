@@ -35,7 +35,6 @@ WORKDIR /app
 # Copy the binary from builder stage
 COPY --from=builder /app/codexray-transformer .
 
-
 # Change ownership to non-root user
 RUN chown -R appuser:appgroup /app
 

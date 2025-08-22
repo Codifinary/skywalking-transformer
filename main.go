@@ -151,7 +151,6 @@ func main() {
 	combinedCh = make(chan combined, workerCount*2)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	// Batcher
 	wg.Add(1)
@@ -197,15 +196,16 @@ func main() {
 		cancel()
 		close(jobCh)
 		ctxTimeout, cancel2 := context.WithTimeout(context.Background(), shutdownTimeout)
-		defer cancel2()
 		if err := srv.Shutdown(ctxTimeout); err != nil {
 			log.Printf("HTTP server shutdown error: %v", err)
 		}
+		defer cancel2()
 		wg.Wait()
 		close(idleConnsClosed)
 	}()
 
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		defer cancel()
 		log.Fatalf("Server failed: %v", err)
 	}
 	<-idleConnsClosed
@@ -233,7 +233,8 @@ func collectAndEnqueueHandler(c *gin.Context) {
 	}
 
 	enqueued := 0
-	for _, segment := range payload {
+	for i := range payload {
+		segment := &payload[i] // Use pointer to avoid copying
 		otelPayload := converter.SkywalkingToOtel(segment)
 		j := job{payload: otelPayload}
 		if queueDropOnFull {
