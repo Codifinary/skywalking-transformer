@@ -64,22 +64,22 @@ jobs:
         include:
           - os: linux
             arch: amd64
-            binary_name: codexray-transformer-linux-amd64
+            binary_name: skywalking-transformer-linux-amd64
           - os: linux
             arch: arm64
-            binary_name: codexray-transformer-linux-arm64
+            binary_name: skywalking-transformer-linux-arm64
           - os: darwin
             arch: amd64
-            binary_name: codexray-transformer-darwin-amd64
+            binary_name: skywalking-transformer-darwin-amd64
           - os: darwin
             arch: arm64
-            binary_name: codexray-transformer-darwin-arm64
+            binary_name: skywalking-transformer-darwin-arm64
           - os: windows
             arch: amd64
-            binary_name: codexray-transformer-windows-amd64.exe
+            binary_name: skywalking-transformer-windows-amd64.exe
           - os: windows
             arch: arm64
-            binary_name: codexray-transformer-windows-arm64.exe
+            binary_name: skywalking-transformer-windows-arm64.exe
 
     steps:
       - name: Checkout code
@@ -133,12 +133,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
 
       # Build Docker Image
       - name: Build Docker Image
@@ -152,28 +147,4 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-# -------------------------------------
-# Job 3: Security Scan
-# -------------------------------------
-  security-scan:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.GHCR_IMAGE }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
