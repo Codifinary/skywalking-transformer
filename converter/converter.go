@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"sky2otel/otel"
-	"sky2otel/skywalking"
+	"skywalking_transformer/otel"
+	"skywalking_transformer/skywalking"
 	"strings"
 )
 
