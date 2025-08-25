@@ -64,8 +64,10 @@ func SkywalkingToOtel(sw *skywalking.TraceSegment) otel.OTelPayload {
 		var attributes []otel.Attribute
 
 		// tags as attributes
-		for j := range swSpan.Tags {
-			tag := &swSpan.Tags[j]
+		for _, tag := range swSpan.Tags {
+			if tag.Key == "db.type" {
+				tag.Key = "db.system"
+			}
 			attributes = append(attributes, otel.Attribute{
 				Key: tag.Key,
 				Value: otel.AttributeVal{
