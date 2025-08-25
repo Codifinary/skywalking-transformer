@@ -13,13 +13,21 @@ import (
 
 func randomTraceID() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		log.Printf("Failed to generate random trace ID: %v", err)
+		// Fallback to a default value
+		return ""
+	}
 	return hex.EncodeToString(b)
 }
 
 func randomSpanID() string {
 	b := make([]byte, 8)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		log.Printf("Failed to generate random span ID: %v", err)
+		// Fallback to a default value
+		return ""
+	}
 	return hex.EncodeToString(b)
 }
 
@@ -30,7 +38,7 @@ type serviceParsed struct {
 	Type   string `json:"type"`
 }
 
-func SkywalkingToOtel(sw skywalking.TraceSegment) otel.OTelPayload {
+func SkywalkingToOtel(sw *skywalking.TraceSegment) otel.OTelPayload {
 	traceID := randomTraceID()
 	spanIDMap := make(map[int]string)
 	var otelSpans []otel.OTelSpan
@@ -43,7 +51,8 @@ func SkywalkingToOtel(sw skywalking.TraceSegment) otel.OTelPayload {
 		parsed.Name = sw.Service
 	}
 
-	for _, swSpan := range sw.Spans {
+	for i := range sw.Spans {
+		swSpan := &sw.Spans[i]
 		hexSpanID := randomSpanID()
 		spanIDMap[swSpan.SpanID] = hexSpanID
 
@@ -56,6 +65,9 @@ func SkywalkingToOtel(sw skywalking.TraceSegment) otel.OTelPayload {
 
 		// tags as attributes
 		for _, tag := range swSpan.Tags {
+			if tag.Key == "db.type" {
+				tag.Key = "db.system"
+			}
 			attributes = append(attributes, otel.Attribute{
 				Key: tag.Key,
 				Value: otel.AttributeVal{
@@ -65,39 +77,40 @@ func SkywalkingToOtel(sw skywalking.TraceSegment) otel.OTelPayload {
 		}
 
 		// enrich attributes with peer, component, layer
-		if swSpan.Peer != "" {
-			attributes = append(attributes, otel.Attribute{
-				Key: "peer",
-				Value: otel.AttributeVal{
-					StringValue: swSpan.Peer,
-				},
-			})
-		}
-		if swSpan.ComponentId != 0 {
-			attributes = append(attributes, otel.Attribute{
-				Key: "component.id",
-				Value: otel.AttributeVal{
-					IntValue: int64(swSpan.ComponentId),
-				},
-			})
-		}
-		if swSpan.SpanLayer != "" {
-			attributes = append(attributes, otel.Attribute{
-				Key: "layer",
-				Value: otel.AttributeVal{
-					StringValue: swSpan.SpanLayer,
-				},
-			})
+		if swSpan.Peer != "" || swSpan.ComponentId != 0 || swSpan.SpanLayer != "" {
+			if swSpan.Peer != "" {
+				attributes = append(attributes, otel.Attribute{
+					Key: "peer",
+					Value: otel.AttributeVal{
+						StringValue: swSpan.Peer,
+					},
+				})
+			}
+			if swSpan.ComponentId != 0 {
+				attributes = append(attributes, otel.Attribute{
+					Key: "component.id",
+					Value: otel.AttributeVal{
+						IntValue: int64(swSpan.ComponentId),
+					},
+				})
+			}
+			if swSpan.SpanLayer != "" {
+				attributes = append(attributes, otel.Attribute{
+					Key: "layer",
+					Value: otel.AttributeVal{
+						StringValue: swSpan.SpanLayer,
+					},
+				})
+			}
 		}
 
+		// Add span type and error status in one append
 		attributes = append(attributes, otel.Attribute{
 			Key: "span.type",
 			Value: otel.AttributeVal{
 				StringValue: swSpan.SpanType,
 			},
-		})
-
-		attributes = append(attributes, otel.Attribute{
+		}, otel.Attribute{
 			Key: "span.isError",
 			Value: otel.AttributeVal{
 				BoolValue: bool(swSpan.IsError),
@@ -106,9 +119,11 @@ func SkywalkingToOtel(sw skywalking.TraceSegment) otel.OTelPayload {
 
 		// logs as OTel events
 		var events []otel.Event
-		for _, swLog := range swSpan.Logs {
+		for k := range swSpan.Logs {
+			swLog := &swSpan.Logs[k]
 			var eventAttributes []otel.Attribute
-			for _, tag := range swLog.Data {
+			for l := range swLog.Data {
+				tag := &swLog.Data[l]
 				eventAttributes = append(eventAttributes, otel.Attribute{
 					Key: tag.Key,
 					Value: otel.AttributeVal{

@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+docs/
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+codexray-transformer-*
+
+# Test files
+*_test.go
+*.test
+
+# CI/CD
+.github/
+.github/workflows/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Go specific
+vendor/
