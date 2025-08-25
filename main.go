@@ -12,9 +12,6 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
-	"sky2otel/converter"
-	"sky2otel/otel"
-	"sky2otel/skywalking"
 	"strconv"
 	"sync"
 	"syscall"
@@ -25,7 +22,10 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gopkg.in/natefinch/lumberjack.v2"
 
-	_ "sky2otel/docs"
+	"skywalking_transformer/converter"
+	_ "skywalking_transformer/docs"
+	"skywalking_transformer/otel"
+	"skywalking_transformer/skywalking"
 )
 
 // ----------- Config (env-driven) -----------
@@ -73,7 +73,7 @@ func getenvDurMS(key string, defMS int) time.Duration {
 // ----------- Logging -----------
 func initLogger() {
 	log.SetOutput(&lumberjack.Logger{
-		Filename:   "./sky2otel.log",
+		Filename:   "./skywalking-transformer.log",
 		MaxSize:    5, // MB
 		MaxBackups: 5,
 		MaxAge:     7, // days
