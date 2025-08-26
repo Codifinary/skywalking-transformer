@@ -62,7 +62,42 @@ type Log struct {
 	Data []Tag `json:"data"`
 }
 
+// Reference now auto-decodes `headers` into a map
 type Reference struct {
-	TraceId string `json:"traceId"`
-	Headers string `json:"headers"`
+	TraceId string            `json:"traceId"`
+	Headers map[string]string `json:"headers"`
+}
+
+func (r *Reference) UnmarshalJSON(data []byte) error {
+	// Alias to avoid recursion
+	type Alias Reference
+	aux := &struct {
+		Headers json.RawMessage `json:"headers"`
+		*Alias
+	}{
+		Alias: (*Alias)(r),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	// First try string → JSON
+	var raw string
+	if err := json.Unmarshal(aux.Headers, &raw); err == nil {
+		var m map[string]string
+		if err := json.Unmarshal([]byte(raw), &m); err != nil {
+			return fmt.Errorf("failed to decode headers JSON: %w", err)
+		}
+		r.Headers = m
+		return nil
+	}
+
+	// Maybe it's already a JSON object
+	var m map[string]string
+	if err := json.Unmarshal(aux.Headers, &m); err == nil {
+		r.Headers = m
+	}
+
+	return nil
 }

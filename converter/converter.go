@@ -110,12 +110,36 @@ func SkywalkingToOtel(sw *skywalking.TraceSegment) otel.OTelPayload {
 			Value: otel.AttributeVal{
 				StringValue: swSpan.SpanType,
 			},
-		}, otel.Attribute{
+		})
+
+		attributes = append(attributes, otel.Attribute{
 			Key: "span.isError",
 			Value: otel.AttributeVal{
 				BoolValue: bool(swSpan.IsError),
 			},
 		})
+
+		// Add error.class & error.message from References (if present)
+		for _, ref := range swSpan.References {
+			if ref.Headers != nil {
+				if cls, ok := ref.Headers["error.class"]; ok {
+					attributes = append(attributes, otel.Attribute{
+						Key: "exception.type",
+						Value: otel.AttributeVal{
+							StringValue: cls,
+						},
+					})
+				}
+				if msg, ok := ref.Headers["error.message"]; ok {
+					attributes = append(attributes, otel.Attribute{
+						Key: "exception.message",
+						Value: otel.AttributeVal{
+							StringValue: msg,
+						},
+					})
+				}
+			}
+		}
 
 		// logs as OTel events
 		var events []otel.Event
