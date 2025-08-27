@@ -28,6 +28,12 @@ type OTelSpan struct {
 	EndTimeUnixNano   string      `json:"endTimeUnixNano"`
 	Attributes        []Attribute `json:"attributes"`
 	Events            []Event     `json:"events,omitempty"`
+	Status            *Status     `json:"status,omitempty"`
+}
+
+type Status struct {
+	Code    string `json:"code"`
+	Message string `json:"message,omitempty"`
 }
 
 type Attribute struct {

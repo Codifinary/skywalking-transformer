@@ -163,6 +163,14 @@ func SkywalkingToOtel(sw *skywalking.TraceSegment) otel.OTelPayload {
 			})
 		}
 
+		// status mapping for error
+		var status *otel.Status
+		if swSpan.IsError {
+			status = &otel.Status{
+				Code: "STATUS_CODE_ERROR",
+			}
+		}
+
 		otelSpan := otel.OTelSpan{
 			TraceID:           traceID,
 			SpanID:            hexSpanID,
@@ -173,6 +181,7 @@ func SkywalkingToOtel(sw *skywalking.TraceSegment) otel.OTelPayload {
 			EndTimeUnixNano:   formatNano(swSpan.EndTime),
 			Attributes:        attributes,
 			Events:            events,
+			Status:            status,
 		}
 
 		otelSpans = append(otelSpans, otelSpan)
