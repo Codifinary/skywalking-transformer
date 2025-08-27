@@ -167,7 +167,13 @@ func SkywalkingToOtel(sw *skywalking.TraceSegment) otel.OTelPayload {
 		var status *otel.Status
 		if swSpan.IsError {
 			status = &otel.Status{
-				Code: "STATUS_CODE_ERROR",
+				Code:    "STATUS_CODE_ERROR",
+				Message: "ERROR",
+			}
+		} else {
+			status = &otel.Status{
+				Code:    "STATUS_CODE_OK",
+				Message: "OK",
 			}
 		}
 
