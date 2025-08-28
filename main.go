@@ -18,10 +18,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gopkg.in/natefinch/lumberjack.v2"
 
+	"skywalking_transformer/clrmetrics"
 	"skywalking_transformer/converter"
 	_ "skywalking_transformer/docs"
 	"skywalking_transformer/otel"
@@ -125,7 +127,7 @@ func main() {
 	// Core endpoints (env)
 	collectorURL = os.Getenv("CODEXRAY_COLLECTOR_URL")
 	if collectorURL == "" {
-		collectorURL = "http://labs.codexray.io:8041/v1/traces"
+		collectorURL = "http://demo.codexray.io/v1/traces"
 	}
 	receiverPort = os.Getenv("CODEXRAY_RECEIVER_PORT")
 	if receiverPort == "" {
@@ -175,8 +177,9 @@ func main() {
 	r.POST("/v3/segments", collectAndEnqueueHandler)
 	r.POST("/v3/management/reportProperties", reportPropertiesHandler)
 	r.POST("/v3/management/keepAlive", keepAliveHandler)
-	r.POST("/v3/clrMetricReports", clrMetricReportsHandler)
+	r.POST("/v3/clrMetricReports", clrmetrics.CLRHandler)
 	r.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
+	r.GET("/dotnetmetrics", gin.WrapH(promhttp.Handler()))
 
 	srv := &http.Server{
 		Addr:         ":" + receiverPort,
@@ -258,7 +261,10 @@ func keepAliveHandler(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "alive"})
 }
 func clrMetricReportsHandler(c *gin.Context) {
-	c.JSON(200, gin.H{"status": "ok"})
+	// Parse SkyWalking CLR metrics JSON
+	clrmetrics.CLRHandler(c)
+
+	c.JSON(200, gin.H{"status": "clr metrics updated"})
 }
 
 // ----------- Batcher & Sender -----------
